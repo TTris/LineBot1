@@ -22,7 +22,15 @@ from linebot.v3.messaging import (
     VideoMessage,
     LocationMessage,
     StickerMessage,
-    ImageMessage
+    ImageMessage,
+    ConfirmTemplate, 
+    CarouselColumn,
+    CarouselTemplate, 
+    ImageCarouselTemplate,
+    ImageCarouselColumn, 
+    MessageAction,
+    URIAction,
+    DatetimePickerAction
 )
 from linebot.v3.webhooks import (
     MessageEvent,
@@ -66,6 +74,27 @@ def handle_message(event):
     text = event.message.text
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
+
+        # Confirm Template
+        if text == "Confirm":
+            confirm_template = ConfirmTemplate(
+                text = "今天學程式了嗎？",
+                actions = [
+                    MessageAction(label="是", text="是！"),
+                    MessageAction(label="否", text="否！")
+                ]
+            )
+            template_message = TemplateMessage(
+                alt_text = "Confirm alt text",
+                template = confirm_template
+            )
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken = event.reply_token,
+                    messages=[template_message]
+                )
+            )
+
 
         if text == "文字":
             line_bot_api.reply_message(
