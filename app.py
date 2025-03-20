@@ -30,7 +30,16 @@ from linebot.v3.messaging import (
     ImageCarouselColumn, 
     MessageAction,
     URIAction,
-    DatetimePickerAction
+    DatetimePickerAction,
+    FlexMessage,
+    FlexBubble,
+    FlexImage,
+    FlexBox,
+    FlexText,
+    FlexIcon,
+    FlexButton,
+    FlexSeparator,
+    FlexContainer
 )
 from linebot.v3.webhooks import (
     MessageEvent,
@@ -38,6 +47,7 @@ from linebot.v3.webhooks import (
     PostbackContent,
     FollowEvent
 )
+import json
 
 app = Flask(__name__)
 
@@ -75,8 +85,181 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
+        if text == "flex":
+            url = request.url_root + "/static/IMG_5975.jpg"
+            url = url.replace("http", "https")
+            line_flex_json = {
+                "type": "bubble",
+                "hero": {
+                    "type": "image",
+                    "url": url,
+                    "size": "full",
+                    "aspectRatio": "20:13",
+                    "aspectMode": "cover",
+                    "action": {
+                    "type": "uri",
+                    "uri": "https://line.me/"
+                    }
+                },
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                    {
+                        "type": "text",
+                        "text": "Brown Cafe",
+                        "weight": "bold",
+                        "size": "xl",
+                        "contents": [
+                        {
+                            "type": "span",
+                            "text": "你好！"
+                        },
+                        {
+                            "type": "span",
+                            "text": "hello, world",
+                            "weight": "bold"
+                        }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "margin": "md",
+                        "contents": [
+                        {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+                        },
+                        {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+                        },
+                        {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+                        },
+                        {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+                        },
+                        {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+                        },
+                        {
+                            "type": "icon",
+                            "size": "sm",
+                            "url": "https://developers-resource.landpress.line.me/fx/img/review_gray_star_28.png"
+                        },
+                        {
+                            "type": "text",
+                            "text": "5.0",
+                            "size": "sm",
+                            "color": "#999999",
+                            "margin": "md",
+                            "flex": 0
+                        }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "lg",
+                        "spacing": "sm",
+                        "contents": [
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "spacing": "sm",
+                            "contents": [
+                            {
+                                "type": "text",
+                                "text": "Address",
+                                "color": "#aaaaaa",
+                                "size": "sm",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "Flex Tower, 7-7-4 Midori-ku, Tokyo",
+                                "wrap": True,
+                                "color": "#666666",
+                                "size": "sm",
+                                "flex": 7
+                            }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "spacing": "sm",
+                            "contents": [
+                            {
+                                "type": "text",
+                                "text": "Time",
+                                "color": "#aaaaaa",
+                                "size": "sm",
+                                "flex": 1
+                            },
+                            {
+                                "type": "text",
+                                "text": "10:00 - 23:00",
+                                "wrap": True,
+                                "color": "#666666",
+                                "size": "sm",
+                                "flex": 5
+                            }
+                            ]
+                        }
+                        ]
+                    }
+                    ]
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                    {
+                        "type": "button",
+                        "action": {
+                        "type": "uri",
+                        "label": "Facebook",
+                        "uri": "http://linecorp.com/"
+                        },
+                        "style": "primary",
+                        "margin": "xs"
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "action": {
+                        "type": "uri",
+                        "label": "Instagram",
+                        "uri": "http://linecorp.com/"
+                        },
+                        "margin": "xs"
+                    }
+                    ],
+                    "margin": "none"
+                }
+                }
+            line_flex_str = json.dumps(line_flex_json)
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[FlexMessage(altText="詳細說明", contents=FlexContainer.from_json(line_flex_str))]
+                )
+            )
+
+
         # Confirm Template
-        if text == "Confirm":
+        elif text == "Confirm":
             confirm_template = ConfirmTemplate(
                 text = "今天學程式了嗎？",
                 actions = [
