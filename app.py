@@ -39,20 +39,32 @@ from linebot.v3.messaging import (
     FlexIcon,
     FlexButton,
     FlexSeparator,
-    FlexContainer
+    FlexContainer,
+    QuickReply,
+    QuickReplyItem,
+    CameraAction,
+    CameraRollAction,
+    LocationAction,
+    MessagingApiBlob,
+    RichMenuSize,
+    RichMenuArea,
+    RichMenuRequest,
+    RichMenuBounds
 )
 from linebot.v3.webhooks import (
     MessageEvent,
     TextMessageContent, 
     PostbackContent,
-    FollowEvent
+    FollowEvent,
+    PostbackEvent
 )
 import json
+import os
 
 app = Flask(__name__)
 
-configuration = Configuration(access_token='vmfBnaQfcwTwVVrYUbbSOoOvI6P0+3PJQw9PpQAhvjmZJ3doZsVc1JVVnMnuc2U6Ldpl4gGQdx61mUoA4lozUKmbrquS7DZ8Jir700Rf/84k4ZxYEb7yR7ZbMXpVbu3yxkX4geBrXNluclbpovLxngdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('12934ee7f824bd04f046fc1fa2d2838f')
+configuration = Configuration(access_token=os.getenv("CHANNEL_ACCESS_TOKEN"))
+line_handler = WebhookHandler(os.getenv("CHANNEL_SECRET"))
 
 
 @app.route("/callback", methods=['POST'])
@@ -66,7 +78,7 @@ def callback():
 
     # handle webhook body
     try:
-        handler.handle(body, signature)
+        line_handler.handle(body, signature)
     except InvalidSignatureError:
         app.logger.info("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
@@ -74,18 +86,82 @@ def callback():
     return 'OK'
 
 #add friend event
-@handler.add(FollowEvent)
+@line_handler.add(FollowEvent)
 def handle_follow(event):
     print(f"Got {event.type} event")
 
 #message event
-@handler.add(MessageEvent, message=TextMessageContent)
+@line_handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     text = event.message.text
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        if text == "flex":
+        # Quick Reply
+        if text == "Quick reply":
+            quick_reply = QuickReply(
+                items=[
+                    QuickReplyItem(
+                        action=PostbackAction(
+                            label="postback",
+                            data="postback",
+                            displayText="postback"
+                        )
+                    ),
+                    QuickReplyItem(
+                        action=MessageAction(
+                            label="Message",
+                            text="message"
+                        )
+                    ),
+                    QuickReplyItem(
+                        action=DatetimePickerAction(
+                            label="Date",
+                            data="date",
+                            mode="date"
+                        )
+                    ),
+                    QuickReplyItem(
+                        action=DatetimePickerAction(
+                            label="Time",
+                            data="time",
+                            mode="time"
+                        )
+                    ),
+                    QuickReplyItem(
+                        action=DatetimePickerAction(
+                            label="Datetime",
+                            data="datetime",
+                            mode="datetime",
+                            initial="2025-01-01T00:00",
+                            max="2026-01-01T00:00",
+                            min="2024-01-01T00:00"
+                        )
+                    ),
+                    QuickReplyItem(
+                        action=CameraAction(label="Camera")
+                    ),
+                    QuickReplyItem(
+                        action=CameraRollAction(label="Camera Roll")
+                    ),
+                    QuickReplyItem(
+                        action=LocationAction(label="Location")
+                    )
+                ]
+            )
+
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(
+                        text="請選擇項目",
+                        quickReply=quick_reply
+                    )]
+                )
+            )
+
+
+        elif text == "flex":
             url = request.url_root + "/static/IMG_5975.jpg"
             url = url.replace("http", "https")
             line_flex_json = {
@@ -485,6 +561,42 @@ def handle_message(event):
         #     )
         # )
 
+@line_handler.add(PostbackEvent)
+def handle_postback(event):
+    with ApiClient(configuration) as aip_client:
+        line_bot_api = MessagingApi(aip_client)
+        postback_data = event.postback.data
+        if postback_data == "postback":
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text="Postback")]
+                )
+            )
+        elif postback_data == "date":
+            date = event.postback.params["date"]
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text=date)]
+                )
+            )
+        elif postback_data == "time":
+            time = event.postback.params["time"]
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text=time)]
+                )
+            )
+        elif postback_data == "datetime":
+            datetime = event.postback.params["datetime"]
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text=datetime)]
+                )
+            )
 
 if __name__ == "__main__":
     app.run()
