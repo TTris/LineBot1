@@ -287,7 +287,6 @@ def handle_message(event):
             )
 
             user_city = event.message.text
-            text == "桃園市":
             line_bot_api.reply_message(
                 ReplyMessageRequest(
                     replyToken=event.reply_token,
