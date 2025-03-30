@@ -67,6 +67,8 @@ app = Flask(__name__)
 configuration = Configuration(access_token=os.getenv("CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(os.getenv("CHANNEL_SECRET"))
 
+user_status = {}
+
 
 # get weather data
 def get_weather(city):
@@ -81,8 +83,53 @@ def get_weather(city):
         weather_pair[cities] = i
     
     city_data = weather_data[weather_pair[city]]
+    time1_begin = city_data["weatherElement"][0]["time"][0]["startTime"]
+    time1_end = city_data["weatherElement"][0]["time"][0]["endTime"]
 
-    return(json.dumps(city_data))
+    time2_begin = city_data["weatherElement"][0]["time"][1]["startTime"]
+    time2_end = city_data["weatherElement"][0]["time"][1]["endTime"]
+
+    time3_begin = city_data["weatherElement"][0]["time"][2]["startTime"]
+    time3_end = city_data["weatherElement"][0]["time"][2]["endTime"]
+
+    wxs = []
+    pops = []
+    cis = []
+    maxts = []
+    mints = []
+
+    for i in range(3):
+        wxs.append(city_data["weatherElement"][0]["time"][i]["parameter"]["parameterName"])
+        pops.append(city_data["weatherElement"][1]["time"][i]["parameter"]["parameterName"])
+        mints.append(city_data["weatherElement"][2]["time"][i]["parameter"]["parameterName"])
+        cis.append(city_data["weatherElement"][3]["time"][i]["parameter"]["parameterName"])
+        maxts.append(city_data["weatherElement"][4]["time"][i]["parameter"]["parameterName"])
+    
+
+    city_weather_report = f"""時間: {time1_begin} - {time1_end} 
+    天氣概況：{wxs[0]}
+    舒適度：{cis[0]}
+    最高溫：{maxts[0]}°C
+    最低溫：{mints[0]}°C
+    降雨機率：{pops[0]}%
+
+時間: {time2_begin} - {time2_end} 
+    天氣概況：{wxs[1]}
+    舒適度：{cis[1]}
+    最高溫：{maxts[1]}°C
+    最低溫：{mints[1]}°C
+    降雨機率：{pops[1]}%
+
+時間: {time3_begin} - {time3_end}
+    天氣概況：{wxs[2]}
+    舒適度：{cis[2]}
+    最高溫：{maxts[2]}°C
+    最低溫：{mints[2]}°C
+    降雨機率：{pops[2]}%
+    """
+    
+
+    return(city_weather_report)
 
 
 
@@ -113,186 +160,54 @@ def handle_follow(event):
 #message event
 @line_handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
+    user_id = event.source.user_id
     text = event.message.text
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        if text == "今天天氣":
-            quick_reply = QuickReply(
-                items=[
-                    QuickReplyItem(
-                        action=PostbackAction(
-                            label="基隆市",
-                            data="weather",
-                            displayText="基隆市"
-                        )
-                    ),
-                    QuickReplyItem(
-                        action=PostbackAction(
-                            label="臺北市",
-                            data="weather",
-                            displayText="臺北市"
-                        )
-                    ),
-                    QuickReplyItem(
-                        action=PostbackAction(
-                            label="新北市",
-                            data="weather",
-                            displayText="新北市"
-                        )
-                    ),
-                    QuickReplyItem(
-                        action=PostbackAction(
-                            label="桃園市",
-                            data="weather",
-                            displayText="桃園市"
-                        )
-                    ),
-                    QuickReplyItem(
-                        action=PostbackAction(
-                            label="新竹市",
-                            data="weather",
-                            displayText="新竹市"
-                        )
-                    ),
-                    QuickReplyItem(
-                        action=PostbackAction(
-                            label="新竹縣",
-                            data="weather",
-                            displayText="新竹縣"
-                        )
-                    ),
-                    QuickReplyItem(
-                        action=PostbackAction(
-                            label="苗栗縣",
-                            data="weather",
-                            displayText="苗栗縣"
-                        )
-                    ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="臺中市",
-                    #         data="weather",
-                    #         displayText="臺中市"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="彰化縣",
-                    #         data="weather",
-                    #         displayText="彰化縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="雲林縣",
-                    #         data="weather",
-                    #         displayText="雲林縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="南投縣",
-                    #         data="weather",
-                    #         displayText="南投縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="嘉義縣",
-                    #         data="weather",
-                    #         displayText="嘉義縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="嘉義市",
-                    #         data="weather",
-                    #         displayText="嘉義市"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="臺南市",
-                    #         data="weather",
-                    #         displayText="臺南市"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="高雄市",
-                    #         data="weather",
-                    #         displayText="高雄市"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="屏東縣",
-                    #         data="weather",
-                    #         displayText="屏東縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="宜蘭縣",
-                    #         data="weather",
-                    #         displayText="宜蘭縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="花蓮縣",
-                    #         data="weather",
-                    #         displayText="花蓮縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="臺東縣",
-                    #         data="weather",
-                    #         displayText="臺東縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="連江縣",
-                    #         data="weather",
-                    #         displayText="連江縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="金門縣",
-                    #         data="weather",
-                    #         displayText="金門縣"
-                    #     )
-                    # ),
-                    # QuickReplyItem(
-                    #     action=PostbackAction(
-                    #         label="澎湖縣",
-                    #         data="weather",
-                    #         displayText="澎湖縣"
-                    #     )
-                    # )
-                ]
-            )
-            line_bot_api.reply_message(
-                ReplyMessageRequest(
-                    replyToken=event.reply_token,
-                    messages=[TextMessage(
-                        text="請選擇城市",
-                        quickReply=quick_reply
-                    )]
-                )
-            )
+        if user_id not in user_status:
+            user_status[user_id] = {"weatherstep":0}
+        
+        weatherstep = user_status[user_id]["weatherstep"]
 
-            user_city = event.message.text
+        if text == "天氣" and weatherstep == 0:
+            user_status[user_id]["weatherstep"] = 1
+            send_quick_reply(line_bot_api, event, "請選擇地區", ["北部", "中部", "南部", "東部", "外島地區"])
+        
+        elif weatherstep == 1:
+            user_status[user_id]["region"] = text
+            user_status[user_id]["weatherstep"] = 2
+
+            if text == "北部":
+                send_quick_reply(line_bot_api, event, "請選擇城市", ["基隆市", "臺北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣"])
+            elif text == "中部":
+                send_quick_reply(line_bot_api, event, "請選擇城市", ["苗栗縣", "臺中市", "彰化縣", "雲林縣", "南投縣"])
+            elif text == "南部":
+                send_quick_reply(line_bot_api, event, "請選擇城市", ["嘉義縣", "嘉義市", "臺南市", "高雄市", "屏東縣"])
+            elif text == "東部":
+                send_quick_reply(line_bot_api, event, "請選擇城市", ["花蓮縣", "臺東縣"])
+            elif text == "外島地區":
+                send_quick_reply(line_bot_api, event, "請選擇城市", ["澎湖縣", "連江縣", "金門縣"])
+
+            else:
+                line_bot_api.reply_message(
+                    ReplyMessageRequest(
+                        replyToken=event.reply_token,
+                        messages=[TemplateMessage(text="請選擇有效地區")]
+                    )
+                )
+        
+        elif weatherstep == 2:
+            city = text
+            weatherinfo = get_weather(city)
             line_bot_api.reply_message(
                 ReplyMessageRequest(
                     replyToken=event.reply_token,
-                    messages=[TextMessage(text=get_weather(user_city))]
+                    messages=[TextMessage(text=weatherinfo)]
                 )
             )
+            user_status[user_id]["weatherstep"] = 0
+            
 
 
 
@@ -759,6 +674,20 @@ def handle_message(event):
         #         notificationDisabled = True
         #     )
         # )
+        
+
+# Build Quick Reply function
+def send_quick_reply(line_bot_api, event, title, options=list):
+    quick_reply_items = [QuickReplyItem(action=MessageAction(label=opt, text=opt)) for opt in options]
+    message = TextMessage(text=title, quickReply=QuickReply(items=quick_reply_items))
+    line_bot_api.reply_message(
+        ReplyMessageRequest(
+            replyToken=event.reply_token,
+            messages= [message]
+        )
+    )
+
+
 
 @line_handler.add(PostbackEvent)
 def handle_postback(event):
@@ -809,25 +738,7 @@ def handle_postback(event):
             )
 
 if __name__ == "__main__":
-     app.run()
+    app.run()
 
 
-# # get weather data
-# weather_url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWA-01B95BFF-98D9-488C-8FEA-E1157A21162D"
-# weather_json = requests.get(weather_url).json()
-
-
-# #weather_location = event.message.text
-# weather_data = weather_json["records"]["location"]
-# weather_pair = {}
-
-# for i in range(22):
-#     city = weather_data[i]["locationName"]
-#     weather_pair[city] = i
-
-
-# user_input = input("Location: ")
-
-
-# print(weather_data[weather_pair[user_input]])
 
