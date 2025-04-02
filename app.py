@@ -111,7 +111,9 @@ def get_weather(city):
     omit_time_year2 = 5 if time1_begin[:4]==time2_end[:4] else 0
     omit_time_year3 = 5 if time1_begin[:4]==time3_end[:4] else 0
 
-    city_weather_report = f"""{time1_begin[5:16]} ~ 
+    city_weather_report = f"""{city}天氣：
+
+{time1_begin[5:16]} ~ 
 {time1_end[omit_time_year1:16]} 
 天氣：{wxs[0]}
 體感：{cis[0]}
@@ -193,43 +195,60 @@ def handle_message(event):
         weatherstep = user_status[user_id]["weatherstep"]
         luckystep = user_status[user_id]["luckystep"]
 
-        if text == "天氣" and weatherstep == 0:
+        if text == "天氣" and weatherstep == 0 and luckystep == 0:
             user_status[user_id]["weatherstep"] = 1
             send_quick_reply(line_bot_api, event, "請選擇地區", ["北部", "中部", "南部", "東部", "外島地區"])
         
-        elif weatherstep == 1:
-            user_status[user_id]["region"] = text
-            user_status[user_id]["weatherstep"] = 2
-
-            if text == "北部":
-                send_quick_reply(line_bot_api, event, "請選擇城市", ["基隆市", "臺北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣"])
-            elif text == "中部":
-                send_quick_reply(line_bot_api, event, "請選擇城市", ["苗栗縣", "臺中市", "彰化縣", "雲林縣", "南投縣"])
-            elif text == "南部":
-                send_quick_reply(line_bot_api, event, "請選擇城市", ["嘉義縣", "嘉義市", "臺南市", "高雄市", "屏東縣"])
-            elif text == "東部":
-                send_quick_reply(line_bot_api, event, "請選擇城市", ["花蓮縣", "臺東縣"])
-            elif text == "外島地區":
-                send_quick_reply(line_bot_api, event, "請選擇城市", ["澎湖縣", "連江縣", "金門縣"])
-
+        elif weatherstep == 1 and luckystep == 0:
+            region_list = ["北部", "中部", "南部", "東部", "外島地區"]
+            if text not in region_list:
+                send_quick_reply(line_bot_api, event, "請選擇有效地區", ["北部", "中部", "南部", "東部", "外島地區"])
+            
             else:
+                user_status[user_id]["region"] = text
+                user_status[user_id]["weatherstep"] = 2
+
+                if text == "北部":
+                    send_quick_reply(line_bot_api, event, "請選擇城市", ["基隆市", "臺北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣"])
+                elif text == "中部":
+                    send_quick_reply(line_bot_api, event, "請選擇城市", ["苗栗縣", "臺中市", "彰化縣", "雲林縣", "南投縣"])
+                elif text == "南部":
+                    send_quick_reply(line_bot_api, event, "請選擇城市", ["嘉義縣", "嘉義市", "臺南市", "高雄市", "屏東縣"])
+                elif text == "東部":
+                    send_quick_reply(line_bot_api, event, "請選擇城市", ["花蓮縣", "臺東縣"])
+                elif text == "外島地區":
+                    send_quick_reply(line_bot_api, event, "請選擇城市", ["澎湖縣", "連江縣", "金門縣"])
+
+                else:
+                    line_bot_api.reply_message(
+                        ReplyMessageRequest(
+                            replyToken=event.reply_token,
+                            messages=[TextMessage(text="亂回，重來")]
+                        )
+                    )
+                    user_status[user_id]["weatherstep"] = 0
+            
+        elif weatherstep == 2 and luckystep == 0:
+            city_list = ["基隆市", "臺北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣", "苗栗縣", "臺中市", "彰化縣", "雲林縣", "南投縣", "嘉義縣", "嘉義市", "臺南市", "高雄市", "屏東縣", "花蓮縣", "臺東縣", "澎湖縣", "連江縣", "金門縣"]
+            if text not in city_list:
+                line_bot_api.reply_message(
+                        ReplyMessageRequest(
+                            replyToken=event.reply_token,
+                            messages=[TextMessage(text="亂回，請重新選擇呼叫天氣")]
+                        )
+                    )
+                user_status[user_id]["weatherstep"] = 0
+            
+            else: 
+                city = text
+                weatherinfo = get_weather(city)
                 line_bot_api.reply_message(
                     ReplyMessageRequest(
                         replyToken=event.reply_token,
-                        messages=[TemplateMessage(text="請選擇有效地區")]
+                        messages=[TextMessage(text=weatherinfo)]
                     )
                 )
-        
-        elif weatherstep == 2:
-            city = text
-            weatherinfo = get_weather(city)
-            line_bot_api.reply_message(
-                ReplyMessageRequest(
-                    replyToken=event.reply_token,
-                    messages=[TextMessage(text=weatherinfo)]
-                )
-            )
-            user_status[user_id]["weatherstep"] = 0
+                user_status[user_id]["weatherstep"] = 0
             
 
 
@@ -471,20 +490,26 @@ def handle_message(event):
             )
 
         # 今日運勢
-        elif text == "今日運勢" and luckystep == 0:
+        elif text == "今日運勢" and luckystep == 0 and weatherstep == 0:
             user_status[user_id]["luckystep"] = 1
             send_quick_reply(line_bot_api, event, "請選擇顏色", ["紅", "橙", "黃", "綠", "藍", "紫", "黑", "白"])
 
-        elif luckystep == 1:
-            lucky_result = color_hash(user_status[user_id], text)
-            line_bot_api.reply_message(
-                ReplyMessageRequest(
-                    replyToken=event.reply_token,
-                    messages=[TextMessage(text=f"您的運勢：{lucky_result}")]
-                )
-            )
-
-            user_status[user_id]["luckystep"] = 0
+        elif luckystep == 1 and weatherstep == 0:
+            text_list = ["紅", "橙", "黃", "綠", "藍", "紫", "黑", "白"]
+            if text not in text_list:
+                send_quick_reply(line_bot_api, event, "請從選單選擇顏色", ["紅", "橙", "黃", "綠", "藍", "紫", "黑", "白"])
+            else:
+                if text == "取消":
+                    user_status[user_id]["luckystep"] = 0
+                else:
+                    lucky_result = color_hash(user_status[user_id], text)
+                    line_bot_api.reply_message(
+                        ReplyMessageRequest(
+                            replyToken=event.reply_token,
+                            messages=[TextMessage(text=f"您的運勢：{lucky_result}")]
+                        )
+                    )
+                    user_status[user_id]["luckystep"] = 0
 
 
         # Confirm Template
@@ -673,7 +698,13 @@ def handle_message(event):
                 )
             )
 
-
+        else:
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text="?")]
+                )
+            )
 
         # Reply message
         # line_bot_api.reply_message(
