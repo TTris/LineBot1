@@ -61,6 +61,8 @@ from linebot.v3.webhooks import (
 import json
 import os
 import requests
+import hashlib
+import datetime
 
 app = Flask(__name__)
 
@@ -105,32 +107,49 @@ def get_weather(city):
         cis.append(city_data["weatherElement"][3]["time"][i]["parameter"]["parameterName"])
         maxts.append(city_data["weatherElement"][4]["time"][i]["parameter"]["parameterName"])
     
+    omit_time_year1 = 5 if time1_begin[:4]==time1_end[:4] else 0
+    omit_time_year2 = 5 if time1_begin[:4]==time2_end[:4] else 0
+    omit_time_year3 = 5 if time1_begin[:4]==time3_end[:4] else 0
 
-    city_weather_report = f"""時間: {time1_begin} - {time1_end} 
-    天氣概況：{wxs[0]}
-    舒適度：{cis[0]}
-    最高溫：{maxts[0]}°C
-    最低溫：{mints[0]}°C
-    降雨機率：{pops[0]}%
+    city_weather_report = f"""{time1_begin[5:16]} ~ 
+{time1_end[omit_time_year1:16]} 
+天氣：{wxs[0]}
+體感：{cis[0]}
+溫度：{mints[0]}°C ~ {maxts[0]}°C
+降雨機率：{pops[0]}%
 
-時間: {time2_begin} - {time2_end} 
-    天氣概況：{wxs[1]}
-    舒適度：{cis[1]}
-    最高溫：{maxts[1]}°C
-    最低溫：{mints[1]}°C
-    降雨機率：{pops[1]}%
+{time2_begin[5:16]} ~ 
+{time2_end[omit_time_year2:16]} 
+天氣：{wxs[1]}
+體感：{cis[1]}
+溫度：{mints[1]}°C ~ {maxts[1]}°C
+降雨機率：{pops[1]}%
 
-時間: {time3_begin} - {time3_end}
-    天氣概況：{wxs[2]}
-    舒適度：{cis[2]}
-    最高溫：{maxts[2]}°C
-    最低溫：{mints[2]}°C
-    降雨機率：{pops[2]}%
-    """
+{time3_begin[5:16]} ~ 
+{time3_end[omit_time_year3:16]}
+天氣：{wxs[2]}
+體感：{cis[2]}
+溫度：{mints[2]}°C ~ {maxts[2]}°C
+降雨機率：{pops[2]}%"""
     
 
     return(city_weather_report)
 
+# hash for lucky status
+def color_hash(userID, color):
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    input_str = f"{userID}-{today}-{color}"
+    hash_str = hashlib.sha256(input_str.encode()).hexdigest()
+    hash_val = int(hash_str, 16) % 100
+
+    if hash_val < 15:
+        return "大吉"
+    elif hash_val < 50:
+        return "吉"
+    elif hash_val < 85:
+        return "凶"
+    else:
+        return "大凶"
 
 
 
@@ -166,9 +185,13 @@ def handle_message(event):
         line_bot_api = MessagingApi(api_client)
 
         if user_id not in user_status:
-            user_status[user_id] = {"weatherstep":0}
+            user_status[user_id] = {
+                "weatherstep" : 0,
+                "luckystep" : 0
+            }
         
         weatherstep = user_status[user_id]["weatherstep"]
+        luckystep = user_status[user_id]["luckystep"]
 
         if text == "天氣" and weatherstep == 0:
             user_status[user_id]["weatherstep"] = 1
@@ -446,6 +469,22 @@ def handle_message(event):
                     messages=[FlexMessage(altText="詳細說明", contents=FlexContainer.from_json(line_flex_str))]
                 )
             )
+
+        # 今日運勢
+        elif text == "今日運勢" and luckystep == 0:
+            user_status[user_id]["luckystep"] = 1
+            send_quick_reply(line_bot_api, event, "請選擇顏色", ["紅", "橙", "黃", "綠", "藍", "紫", "黑", "白"])
+
+        elif luckystep == 1:
+            lucky_result = color_hash(user_status[user_id], text)
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text=f"您的運勢：{lucky_result}")]
+                )
+            )
+
+            user_status[user_id]["luckystep"] = 0
 
 
         # Confirm Template
@@ -741,4 +780,4 @@ if __name__ == "__main__":
     app.run()
 
 
-
+print(user_status)
