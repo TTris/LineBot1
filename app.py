@@ -64,6 +64,8 @@ import requests
 import hashlib
 import datetime
 
+from flyticket import cheapest_general
+
 app = Flask(__name__)
 
 configuration = Configuration(access_token=os.getenv("CHANNEL_ACCESS_TOKEN"))
@@ -250,6 +252,27 @@ def handle_message(event):
                 )
                 user_status[user_id]["weatherstep"] = 0
             
+        # 便宜機票總覽
+        elif text == "機票" and weatherstep == 0 and luckystep ==0:
+            reply = "從桃園機場(TPE)出發!\n\n"
+
+            flight_data = cheapest_general()
+            for airport, details in flight_data.items():
+                if len(reply) >= 4000:
+                    break
+                reply += f"到：{details["target_airport"]}"+ "\n"
+                reply += f"搭：{details["flight_number"]}" + "\n"
+                reply += f"{details["departure"]}起飛～{details["return"]}返程)" + "\n"
+                reply += f"只要：NTD {details["price"]}元" + "\n"
+                reply += "-"*10 +"\n"
+                reply += "\n"
+
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text="此功能尚在完善中，以下僅供參考\n\n" + str(reply))]
+                )
+            )
 
 
 
@@ -765,16 +788,7 @@ def handle_postback(event):
         line_bot_api = MessagingApi(aip_client)
         postback_data = event.postback.data
         
-        # if postback_data == "weather":
-        #     user_city = event.message.text
-        #     line_bot_api.reply_message(
-        #         ReplyMessageRequest(
-        #             replyToken=event.reply_token,
-        #             messages=[TextMessage(text=get_weather(user_city))]
-        #         )
-        #     )
-
-        
+   
         if postback_data == "postback":
             line_bot_api.reply_message(
                 ReplyMessageRequest(
