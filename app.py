@@ -254,26 +254,277 @@ def handle_message(event):
             
         # 便宜機票總覽
         elif text == "機票" and weatherstep == 0 and luckystep ==0:
-            reply = "從桃園機場(TPE)出發!\n\n"
-
             flight_data = cheapest_general()
+            carousel_bubbles = []
+    
             for airport, details in flight_data.items():
-                if len(reply) >= 4000:
+                bubble = {
+                    "type": "bubble",
+                    "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                        {
+                            "type": "text",
+                            "text": "從桃園機場(TPE)出發",
+                            "size": "xxs",
+                            "color": "#aaaaaa"
+                        },
+                        {
+                            "type": "text",
+                            "text": details["target_airport"],
+                            "weight": "bold",
+                            "size": "md"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "margin": "lg",
+                            "spacing": "sm",
+                            "contents": [
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "出發時間",
+                                    "color": "#aaaaaa",
+                                    "size": "sm",
+                                    "flex": 2
+                                },
+                                {
+                                    "type": "text",
+                                    "text": details["departure"][:10],
+                                    "wrap": True,
+                                    "color": "#666666",
+                                    "size": "sm",
+                                    "flex": 5
+                                }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "返程時間",
+                                    "color": "#aaaaaa",
+                                    "size": "sm",
+                                    "flex": 2
+                                },
+                                {
+                                    "type": "text",
+                                    "text": details["return"][:10],
+                                    "wrap": True,
+                                    "color": "#666666",
+                                    "size": "sm",
+                                    "flex": 5
+                                }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "參考票價",
+                                    "color": "#aaaaaa",
+                                    "size": "sm",
+                                    "flex": 2
+                                },
+                                {
+                                    "type": "text",
+                                    "text": details["price"],
+                                    "size": "sm",
+                                    "flex": 5,
+                                    "color": "#666666"
+                                }
+                                ],
+                                "spacing": "sm"
+                            },
+                            {
+                                "type": "text",
+                                "text": "真實票價請參考購票頁面",
+                                "size": "xxs",
+                                "color": "#B0C4DE"
+                            }
+                            ]
+                        }
+                        ]
+                    },
+                    "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "height": "sm",
+                            "action": {
+                            "type": "uri",
+                            "label": "Trip.com 比價頁面",
+                            "uri": details["trip_link"]
+                            },
+                            "color": "#6495ED"
+                        }
+                        ]
+                    }
+                }
+                
+                carousel_bubbles.append(bubble)
+                if len(carousel_bubbles) >= 12:
                     break
-                reply += f"到：{details["target_airport"]}"+ "\n"
-                reply += f"搭：{details["flight_number"]}" + "\n"
-                reply += f"{details["departure"]}起飛～{details["return"]}返程)" + "\n"
-                reply += f"只要：NTD {details["price"]}元" + "\n"
-                reply += "-"*10 +"\n"
-                reply += "\n"
+
+            bubbleA = {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                    {
+                        "type": "text",
+                        "text": "從桃園機場(TPE)出發",
+                        "size": "xxs",
+                        "color": "#aaaaaa"
+                    },
+                    {
+                        "type": "text",
+                        "text": "放入target機場",
+                        "weight": "bold",
+                        "size": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "lg",
+                        "spacing": "sm",
+                        "contents": [
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "spacing": "sm",
+                            "contents": [
+                            {
+                                "type": "text",
+                                "text": "出發時間",
+                                "color": "#aaaaaa",
+                                "size": "sm",
+                                "flex": 2
+                            },
+                            {
+                                "type": "text",
+                                "text": "放入target departure",
+                                "wrap": True,
+                                "color": "#666666",
+                                "size": "sm",
+                                "flex": 5
+                            }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "spacing": "sm",
+                            "contents": [
+                            {
+                                "type": "text",
+                                "text": "返程時間",
+                                "color": "#aaaaaa",
+                                "size": "sm",
+                                "flex": 2
+                            },
+                            {
+                                "type": "text",
+                                "text": "放入target return",
+                                "wrap": True,
+                                "color": "#666666",
+                                "size": "sm",
+                                "flex": 5
+                            }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "baseline",
+                            "contents": [
+                            {
+                                "type": "text",
+                                "text": "參考票價",
+                                "color": "#aaaaaa",
+                                "size": "xs",
+                                "flex": 2
+                            },
+                            {
+                                "type": "text",
+                                "text": "放入target price",
+                                "size": "sm",
+                                "flex": 5,
+                                "color": "#666666"
+                            }
+                            ],
+                            "spacing": "sm"
+                        },
+                        {
+                            "type": "text",
+                            "text": "真實票價請參考購票頁面",
+                            "size": "xxs",
+                            "color": "#B0C4DE"
+                        }
+                        ]
+                    }
+                    ]
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "sm",
+                    "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "height": "sm",
+                        "action": {
+                        "type": "uri",
+                        "label": "Trip.com 比價頁面",
+                        "uri": "https://tw.trip.com/flights/?locale=zh-TW&curr=TWD"
+                        },
+                        "color": "#6495ED"
+                    }
+                    ]
+                }
+            }
+            
+            line_flex_str = json.dumps(bubbleA)
 
             line_bot_api.reply_message(
                 ReplyMessageRequest(
                     replyToken=event.reply_token,
-                    messages=[TextMessage(text="此功能尚在完善中，以下僅供參考\n\n" + str(reply))]
+                    messages=[FlexMessage(
+                        altText="機票清單",
+                        contents=FlexContainer.from_json(line_flex_str)
+                    )]
                 )
             )
 
+
+            # line_bot_api.reply_message(
+            #     ReplyMessageRequest(
+            #         replyToken=event.reply_token,
+            #         messages=[FlexMessage(
+            #             altText="機票清單",
+            #             contents={
+            #                 "type":"carousel",
+            #                 "contents":carousel_bubbles
+            #             }
+            #         )]
+            #     )
+            # )
 
 
         # Quick Reply
@@ -668,8 +919,6 @@ def handle_message(event):
                 )
             )
 
-
-
         elif text == "文字":
             line_bot_api.reply_message(
                 ReplyMessageRequest(
@@ -718,6 +967,14 @@ def handle_message(event):
                     messages = [
                         VideoMessage(originalContentUrl=url, previewImageUrl=url)
                     ]
+                )
+            )
+
+        elif text == "Hi 可愛小貓咪":
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text="喵")]
                 )
             )
 
