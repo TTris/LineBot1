@@ -274,7 +274,8 @@ def handle_message(event):
                             "type": "text",
                             "text": details["target_airport"],
                             "weight": "bold",
-                            "size": "md"
+                            "size": "md",
+                            "wrap":True
                         },
                         {
                             "type": "box",
