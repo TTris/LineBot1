@@ -86,15 +86,23 @@ def get_weather(city):
         cities = weather_data[i]["locationName"]
         weather_pair[cities] = i
     
+    weekday_list=["一","二","三","四","五","六","日"]
+
     city_data = weather_data[weather_pair[city]]
     time1_begin = city_data["weatherElement"][0]["time"][0]["startTime"]
     time1_end = city_data["weatherElement"][0]["time"][0]["endTime"]
+    time1_begin_week = weekday_list[datetime.datetime(year=int(time1_begin[:4]),month=int(time1_begin[5:7]),day=int(time1_begin[8:10])).weekday()]
+    time1_end_week = weekday_list[datetime.datetime(year=int(time1_end[:4]), month=int(time1_end[5:7]), day=int(time1_end[8:10])).weekday()]
 
     time2_begin = city_data["weatherElement"][0]["time"][1]["startTime"]
     time2_end = city_data["weatherElement"][0]["time"][1]["endTime"]
+    time2_begin_week = weekday_list[datetime.datetime(year=int(time2_begin[:4]),month=int(time2_begin[5:7]),day=int(time2_begin[8:10])).weekday()]
+    time2_end_week = weekday_list[datetime.datetime(year=int(time2_end[:4]), month=int(time2_end[5:7]), day=int(time2_end[8:10])).weekday()]
 
     time3_begin = city_data["weatherElement"][0]["time"][2]["startTime"]
     time3_end = city_data["weatherElement"][0]["time"][2]["endTime"]
+    time3_begin_week = weekday_list[datetime.datetime(year=int(time3_begin[:4]),month=int(time3_begin[5:7]),day=int(time3_begin[8:10])).weekday()]
+    time3_end_week = weekday_list[datetime.datetime(year=int(time3_end[:4]), month=int(time3_end[5:7]), day=int(time3_end[8:10])).weekday()]
 
     wxs = []
     pops = []
@@ -115,22 +123,22 @@ def get_weather(city):
 
     city_weather_report = f"""{city}天氣：
 
-{time1_begin[5:16]} ~ 
-{time1_end[omit_time_year1:16]} 
+{time1_begin[5:10]}({time1_begin_week}) {time1_begin[11:16]} ~ 
+{time1_end[omit_time_year1:10]}({time1_end_week}) {time1_end[11:16]} 
 天氣：{wxs[0]}
 體感：{cis[0]}
 溫度：{mints[0]}°C ~ {maxts[0]}°C
 降雨機率：{pops[0]}%
 
-{time2_begin[5:16]} ~ 
-{time2_end[omit_time_year2:16]} 
+{time2_begin[5:10]}({time2_begin_week}) {time2_begin[11:16]} ~ 
+{time2_end[omit_time_year2:10]}({time2_end_week}) {time2_end[11:16]} 
 天氣：{wxs[1]}
 體感：{cis[1]}
 溫度：{mints[1]}°C ~ {maxts[1]}°C
 降雨機率：{pops[1]}%
 
-{time3_begin[5:16]} ~ 
-{time3_end[omit_time_year3:16]}
+{time3_begin[5:10]}({time3_begin_week}) {time3_begin[11:16]} ~ 
+{time3_end[omit_time_year3:10]}({time3_end_week}) {time3_end[11:16]} 
 天氣：{wxs[2]}
 體感：{cis[2]}
 溫度：{mints[2]}°C ~ {maxts[2]}°C
@@ -154,6 +162,137 @@ def color_hash(userID, color):
         return "凶"
     else:
         return "大凶"
+
+
+# create all carousle bubbles
+def create_fight_carousel_bubbles():
+    flight_data = cheapest_general()
+    carousel_bubbles = []
+
+    for airport, details in flight_data.items():
+        bubble = {
+            "type": "bubble",
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                {
+                    "type": "text",
+                    "text": "從桃園機場(TPE)出發",
+                    "size": "xxs",
+                    "color": "#aaaaaa"
+                },
+                {
+                    "type": "text",
+                    "text": details["target_airport"],
+                    "weight": "bold",
+                    "size": "md",
+                    "wrap":True
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "lg",
+                    "spacing": "sm",
+                    "contents": [
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "spacing": "sm",
+                        "contents": [
+                        {
+                            "type": "text",
+                            "text": "出發時間",
+                            "color": "#aaaaaa",
+                            "size": "sm",
+                            "flex": 2
+                        },
+                        {
+                            "type": "text",
+                            "text": details["departure"][:10],
+                            "wrap": True,
+                            "color": "#666666",
+                            "size": "sm",
+                            "flex": 5
+                        }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "spacing": "sm",
+                        "contents": [
+                        {
+                            "type": "text",
+                            "text": "返程時間",
+                            "color": "#aaaaaa",
+                            "size": "sm",
+                            "flex": 2
+                        },
+                        {
+                            "type": "text",
+                            "text": details["return"][:10],
+                            "wrap": True,
+                            "color": "#666666",
+                            "size": "sm",
+                            "flex": 5
+                        }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "contents": [
+                        {
+                            "type": "text",
+                            "text": "參考票價",
+                            "color": "#aaaaaa",
+                            "size": "sm",
+                            "flex": 2
+                        },
+                        {
+                            "type": "text",
+                            "text": f"NTD {details["price"]}元",
+                            "size": "sm",
+                            "flex": 5,
+                            "color": "#666666"
+                        }
+                        ],
+                        "spacing": "sm"
+                    },
+                    {
+                        "type": "text",
+                        "text": "真實票價請參考購票頁面",
+                        "size": "xxs",
+                        "color": "#B0C4DE"
+                    }
+                    ]
+                }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "sm",
+                "contents": [
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "height": "sm",
+                    "action": {
+                    "type": "uri",
+                    "label": "Trip.com 比價頁面",
+                    "uri": details["trip_link"]
+                    },
+                    "color": "#6495ED"
+                }
+                ]
+            }
+        }
+        
+        carousel_bubbles.append(bubble)
+
+    return carousel_bubbles
 
 
 
@@ -191,17 +330,19 @@ def handle_message(event):
         if user_id not in user_status:
             user_status[user_id] = {
                 "weatherstep" : 0,
-                "luckystep" : 0
+                "luckystep" : 0,
+                "flightstep" : 0
             }
         
         weatherstep = user_status[user_id]["weatherstep"]
         luckystep = user_status[user_id]["luckystep"]
+        flightstep = user_status[user_id]["flightstep"]
 
-        if text == "天氣" and weatherstep == 0 and luckystep == 0:
+        if text == "天氣" and weatherstep == 0 and luckystep == 0 and flightstep == 0:
             user_status[user_id]["weatherstep"] = 1
             send_quick_reply(line_bot_api, event, "請選擇地區", ["北部", "中部", "南部", "東部", "外島地區"])
         
-        elif weatherstep == 1 and luckystep == 0:
+        elif weatherstep == 1 and luckystep == 0 and flightstep == 0:
             region_list = ["北部", "中部", "南部", "東部", "外島地區"]
             if text not in region_list:
                 send_quick_reply(line_bot_api, event, "請選擇有效地區", ["北部", "中部", "南部", "東部", "外島地區"])
@@ -230,7 +371,7 @@ def handle_message(event):
                     )
                     user_status[user_id]["weatherstep"] = 0
             
-        elif weatherstep == 2 and luckystep == 0:
+        elif weatherstep == 2 and luckystep == 0 and flightstep == 0:
             city_list = ["基隆市", "臺北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣", "苗栗縣", "臺中市", "彰化縣", "雲林縣", "南投縣", "嘉義縣", "嘉義市", "臺南市", "高雄市", "屏東縣", "花蓮縣", "臺東縣", "澎湖縣", "連江縣", "金門縣"]
             if text not in city_list:
                 line_bot_api.reply_message(
@@ -253,153 +394,69 @@ def handle_message(event):
                 user_status[user_id]["weatherstep"] = 0
             
         # 便宜機票總覽
-        elif text == "機票" and weatherstep == 0 and luckystep ==0:
-            flight_data = cheapest_general()
-            carousel_bubbles = []
-    
-            for airport, details in flight_data.items():
-                bubble = {
-                    "type": "bubble",
-                    "body": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                        {
-                            "type": "text",
-                            "text": "從桃園機場(TPE)出發",
-                            "size": "xxs",
-                            "color": "#aaaaaa"
-                        },
-                        {
-                            "type": "text",
-                            "text": details["target_airport"],
-                            "weight": "bold",
-                            "size": "md",
-                            "wrap":True
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "margin": "lg",
-                            "spacing": "sm",
-                            "contents": [
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "出發時間",
-                                    "color": "#aaaaaa",
-                                    "size": "sm",
-                                    "flex": 2
-                                },
-                                {
-                                    "type": "text",
-                                    "text": details["departure"][:10],
-                                    "wrap": True,
-                                    "color": "#666666",
-                                    "size": "sm",
-                                    "flex": 5
-                                }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "返程時間",
-                                    "color": "#aaaaaa",
-                                    "size": "sm",
-                                    "flex": 2
-                                },
-                                {
-                                    "type": "text",
-                                    "text": details["return"][:10],
-                                    "wrap": True,
-                                    "color": "#666666",
-                                    "size": "sm",
-                                    "flex": 5
-                                }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "contents": [
-                                {
-                                    "type": "text",
-                                    "text": "參考票價",
-                                    "color": "#aaaaaa",
-                                    "size": "sm",
-                                    "flex": 2
-                                },
-                                {
-                                    "type": "text",
-                                    "text": f"NTD {details["price"]}元",
-                                    "size": "sm",
-                                    "flex": 5,
-                                    "color": "#666666"
-                                }
-                                ],
-                                "spacing": "sm"
-                            },
-                            {
-                                "type": "text",
-                                "text": "真實票價請參考購票頁面",
-                                "size": "xxs",
-                                "color": "#B0C4DE"
-                            }
-                            ]
-                        }
-                        ]
-                    },
-                    "footer": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "spacing": "sm",
-                        "contents": [
-                        {
-                            "type": "button",
-                            "style": "primary",
-                            "height": "sm",
-                            "action": {
-                            "type": "uri",
-                            "label": "Trip.com 比價頁面",
-                            "uri": details["trip_link"]
-                            },
-                            "color": "#6495ED"
-                        }
-                        ]
-                    }
-                }
-                
-                carousel_bubbles.append(bubble)
-                if len(carousel_bubbles) >= 12:
-                    break
+        elif text == "機票" and weatherstep == 0 and luckystep ==0 and flightstep == 0:
+            carousel_bubbles = create_fight_carousel_bubbles()
 
             carousel_dict = {
                 "type":"carousel",
-                "contents":carousel_bubbles
+                "contents":carousel_bubbles[:12]
             }
 
             carousel_container = FlexContainer.from_json(json.dumps(carousel_dict))
-
 
             line_bot_api.reply_message(
                 ReplyMessageRequest(
                     replyToken=event.reply_token,
                     messages=[FlexMessage(
-                        altText="機票清單",
+                        altText="機票清單第一頁",
+                        contents=carousel_container
+                    )]
+                )
+            )
+            user_status[user_id]["flightstep"] = 1
+
+        elif text == "機票第二頁" and weatherstep == 0 and luckystep == 0 and flightstep == 1:
+            carousel_bubbles = create_fight_carousel_bubbles()
+
+            carousel_dict = {
+                "type":"carousel",
+                "contents": carousel_bubbles[12:24]
+            }
+
+            carousel_container = FlexContainer.from_json(json.dumps(carousel_dict))
+
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[FlexMessage(
+                        altText="機票清單第二頁",
                         contents=carousel_container
                     )]
                 )
             )
 
+            user_status[user_id]["flightstep"] = 2
+        
+        elif text == "機票第三頁" and weatherstep == 0 and luckystep == 0 and flightstep == 2:
+            carousel_bubbles = create_fight_carousel_bubbles()
+            carousel_dict = {
+                "type":"carousel",
+                "contents": carousel_bubbles[24:]
+            }
+
+            carousel_container = FlexContainer.from_json(json.dumps(carousel_dict))
+
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[FlexMessage(
+                        altText="機票清單第三頁",
+                        contents=carousel_container
+                    )]
+                )
+            )
+
+            user_status[user_id]["flightstep"] = 0
 
         # Quick Reply
         elif text == "Quick reply":
