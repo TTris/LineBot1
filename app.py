@@ -394,7 +394,7 @@ def handle_message(event):
                 user_status[user_id]["weatherstep"] = 0
             
         # 便宜機票總覽
-        elif text == "機票" and weatherstep == 0 and luckystep ==0 and flightstep == 0:
+        elif text == "機票" and weatherstep == 0 and luckystep ==0:
             carousel_bubbles = create_fight_carousel_bubbles()
 
             carousel_dict = {
@@ -413,9 +413,8 @@ def handle_message(event):
                     )]
                 )
             )
-            user_status[user_id]["flightstep"] = 1
 
-        elif text == "機票第二頁" and weatherstep == 0 and luckystep == 0 and flightstep == 1:
+        elif text == "機票第二頁" and weatherstep == 0 and luckystep == 0:
             carousel_bubbles = create_fight_carousel_bubbles()
 
             carousel_dict = {
@@ -435,9 +434,8 @@ def handle_message(event):
                 )
             )
 
-            user_status[user_id]["flightstep"] = 2
         
-        elif text == "機票第三頁" and weatherstep == 0 and luckystep == 0 and flightstep == 2:
+        elif text == "機票第三頁" and weatherstep == 0 and luckystep == 0:
             carousel_bubbles = create_fight_carousel_bubbles()
             carousel_dict = {
                 "type":"carousel",
@@ -456,7 +454,6 @@ def handle_message(event):
                 )
             )
 
-            user_status[user_id]["flightstep"] = 0
 
         # Quick Reply
         elif text == "Quick reply":

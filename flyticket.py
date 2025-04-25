@@ -49,4 +49,4 @@ def cheapest_general():
     return cheapest_general
 
 
-print(cheapest_general())
+print(airports_list)
