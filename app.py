@@ -346,6 +346,8 @@ def handle_message(event):
     text = event.message.text
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
+        guide_list = ["介紹", "說明", "guide"]
+        meow_list = ["Hi 可愛小貓咪", "小貓咪", "貓咪", "喵", "嗨", "Hi", "可愛小貓咪"]
 
         if user_id not in user_status:
             user_status[user_id] = {
@@ -358,7 +360,18 @@ def handle_message(event):
         luckystep = user_status[user_id]["luckystep"]
         flightstep = user_status[user_id]["flightstep"]
 
-        if text == "天氣" and weatherstep == 0 and luckystep == 0 and flightstep == 0:
+        # guide information
+        if text.lower() in guide_list:
+            guide_text="本喵學會找天氣、找機票、占卜\n其他還在學\n\n輸入「天氣」可以找36小時內天氣\n輸入「機票」可以找便宜機票\n輸入「今日運勢」本喵會占卜！"
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text=guide_text)]
+                )
+            )
+
+        #天氣
+        elif text == "天氣" and weatherstep == 0 and luckystep == 0 and flightstep == 0:
             user_status[user_id]["weatherstep"] = 1
             send_quick_reply(line_bot_api, event, "喵～請選地區", ["北部", "中部", "南部", "東部", "外島地區"])
         
@@ -932,7 +945,7 @@ def handle_message(event):
                 )
             )
 
-        elif text == "Hi 可愛小貓咪" or "小貓咪" or "嗨":
+        elif text in meow_list:
             line_bot_api.reply_message(
                 ReplyMessageRequest(
                     replyToken=event.reply_token,
