@@ -2086,6 +2086,7 @@ CN,Anhui,China,中國大陸,TXN,Huangshan Tunxi International ,29.7333,118.256
 CN,Anhui,China,中國大陸,WHA,Wuhu ,31.3906,118.409
 CN,Beijing,China,中國大陸,PEK,Beijing Capital International ,40.0725,116.598
 CN,Beijing,China,中國大陸,PKX,Daxing International ,39.5101,116.4101
+CN,Beijing,China,中國大陸,BJS,北京市所有
 CN,Chongqing Shi,China,中國大陸,CQW,Chongqing Xiannyushan ,29.4658,107.692
 CN,Chongqing Shi,China,中國大陸,WSK,Chongqing Wushan ,31.064,109.706
 CN,Chongqing,China,中國大陸,CKG,Chongqing Jiangbei International ,29.7192,106.642
@@ -3199,6 +3200,7 @@ GB,England,United Kingdom of Great Britain and Northern Ireland (the),英國,BHX
 GB,England,United Kingdom of Great Britain and Northern Ireland (the),英國,BLK,Blackpool ,53.7717,-3.02861
 GB,England,United Kingdom of Great Britain and Northern Ireland (the),英國,BOH,Bournemouth ,50.78,-1.8425
 GB,England,United Kingdom of Great Britain and Northern Ireland (the),英國,BQH,London Biggin Hill ,51.3308,0.0325
+GB,England,United Kingdom of Great Britain and Northern Ireland (the),英國,LON,倫敦所有
 GB,England,United Kingdom of Great Britain and Northern Ireland (the),英國,BRS,Bristol ,51.3827,-2.71909
 GB,England,United Kingdom of Great Britain and Northern Ireland (the),英國,BWF,Barrow/Walney Island ,54.1286,-3.2675
 GB,England,United Kingdom of Great Britain and Northern Ireland (the),英國,BZZ,RAF Brize Norton,51.75,-1.58362
@@ -4260,6 +4262,7 @@ JP,Tokyo,Japan,日本,MUS,Minami Torishima ,24.2897,153.979
 JP,Tokyo,Japan,日本,MYE,Miyakejima ,34.0736,139.56
 JP,Tokyo,Japan,日本,NRT,Narita International ,35.7653,140.386
 JP,Tokyo,Japan,日本,OIM,Oshima ,34.782,139.36
+JP,Tokyo,Japan,日本,TYO,東京所有,
 JP,Tottori,Japan,日本,OKI,Oki ,36.1811,133.325
 JP,Tottori,Japan,日本,TTJ,Tottori ,35.5301,134.167
 JP,Tottori,Japan,日本,YGJ,Miho-Yonago ,35.4922,133.236
@@ -4374,6 +4377,7 @@ KR,Gwangju-gwangyeoksi,Korea (the Republic of),韓國,KWJ,Gwangju ,35.1232,126.8
 KR,Gwangju-gwangyeoksi,Korea (the Republic of),韓國,MWX,Muan International ,34.9914,126.383
 KR,Gwangju-gwangyeoksi,Korea (the Republic of),韓國,RSU,Yeosu/Suncheon ,34.8423,127.617
 KR,Gyeonggi-do,Korea (the Republic of),韓國,GMP,Seoul Gimpo International ,37.5655,126.8011
+KR,Gyeonggi-do,Korea (the Republic of),韓國,SEL,首爾所有
 KR,Gyeonggi-do,Korea (the Republic of),韓國,ICN,Incheon International ,37.4633,126.44
 KR,Gyeonggi-do,Korea (the Republic of),韓國,OSN,Osan Air Base,37.0906,127.03
 KR,Gyeonggi-do,Korea (the Republic of),韓國,SWU,Suwon Air Base,37.2394,127.007
@@ -8208,6 +8212,7 @@ US,New York,United States of America (the),美國,SWF,New York Stewart Internati
 US,New York,United States of America (the),美國,SXY,Sidney Municipal ,42.3026,-75.416
 US,New York,United States of America (the),美國,SYR,Syracuse Hancock International ,43.1112,-76.1063
 US,New York,United States of America (the),美國,WSH,Brookhaven ,40.8219,-72.8694
+US,New York,United States of America (the),美國,NYC,紐約所有
 US,North Carolina,United States of America (the),美國,AVL,Asheville Regional ,35.4362,-82.5418
 US,North Carolina,United States of America (the),美國,CLT,Charlotte Douglas International ,35.214,-80.9431
 US,North Carolina,United States of America (the),美國,CTZ,Clinton-Sampson County ,34.9756,-78.3646

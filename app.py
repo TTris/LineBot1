@@ -163,8 +163,7 @@ def color_hash(userID, color):
     else:
         return "大凶"
 
-
-# create all carousle bubbles
+# create carousle bubbles for all flight results
 def create_fight_carousel_bubbles():
     flight_data = cheapest_general()
     carousel_bubbles = []
@@ -252,7 +251,7 @@ def create_fight_carousel_bubbles():
                         },
                         {
                             "type": "text",
-                            "text": f"NTD {details["price"]}元",
+                            "text": f"約NTD {details["price"]}元",
                             "size": "sm",
                             "flex": 5,
                             "color": "#666666"
@@ -293,6 +292,27 @@ def create_fight_carousel_bubbles():
         carousel_bubbles.append(bubble)
 
     return carousel_bubbles
+
+# creat a list for all flight results
+def creat_flight_list():
+    flight_data = cheapest_general()
+    list_len = len(flight_data)
+    flight_count = 0
+    current_page = 0
+    flight_list_str = ""
+
+    for airport, details in flight_data.items():
+        if (flight_count//12)+1 != current_page:
+            current_page += 1
+            flight_list_str += f"共{list_len}筆資料｜第{current_page}頁/共{(list_len//12)+(1 if (list_len%12)!=0 else 0)}頁\n\n"
+        flight_count += 1
+        flight_list_str += f"{flight_count}. {details["target_airport"]}\n"
+        flight_list_str += f"    時間：{(details["departure"][:10].replace("-","/"))} - {(details["return"][(5 if details["return"][:5]==details["departure"][:5]else 0):10]).replace("-","/")}\n"
+        flight_list_str += f"    價錢：約 NTD {details["price"]}元\n"
+        flight_list_str += "-"*30
+        flight_list_str += "\n"
+
+    return flight_list_str
 
 
 
@@ -340,7 +360,7 @@ def handle_message(event):
 
         if text == "天氣" and weatherstep == 0 and luckystep == 0 and flightstep == 0:
             user_status[user_id]["weatherstep"] = 1
-            send_quick_reply(line_bot_api, event, "請選擇地區", ["北部", "中部", "南部", "東部", "外島地區"])
+            send_quick_reply(line_bot_api, event, "喵～請選地區", ["北部", "中部", "南部", "東部", "外島地區"])
         
         elif weatherstep == 1 and luckystep == 0 and flightstep == 0:
             region_list = ["北部", "中部", "南部", "東部", "外島地區"]
@@ -352,21 +372,21 @@ def handle_message(event):
                 user_status[user_id]["weatherstep"] = 2
 
                 if text == "北部":
-                    send_quick_reply(line_bot_api, event, "請選擇城市", ["基隆市", "臺北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣"])
+                    send_quick_reply(line_bot_api, event, "請選城市", ["基隆市", "臺北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣"])
                 elif text == "中部":
-                    send_quick_reply(line_bot_api, event, "請選擇城市", ["苗栗縣", "臺中市", "彰化縣", "雲林縣", "南投縣"])
+                    send_quick_reply(line_bot_api, event, "請選城市", ["苗栗縣", "臺中市", "彰化縣", "雲林縣", "南投縣"])
                 elif text == "南部":
-                    send_quick_reply(line_bot_api, event, "請選擇城市", ["嘉義縣", "嘉義市", "臺南市", "高雄市", "屏東縣"])
+                    send_quick_reply(line_bot_api, event, "請選城市", ["嘉義縣", "嘉義市", "臺南市", "高雄市", "屏東縣"])
                 elif text == "東部":
-                    send_quick_reply(line_bot_api, event, "請選擇城市", ["花蓮縣", "臺東縣"])
+                    send_quick_reply(line_bot_api, event, "請選城市", ["花蓮縣", "臺東縣"])
                 elif text == "外島地區":
-                    send_quick_reply(line_bot_api, event, "請選擇城市", ["澎湖縣", "連江縣", "金門縣"])
+                    send_quick_reply(line_bot_api, event, "請選城市", ["澎湖縣", "連江縣", "金門縣"])
 
                 else:
                     line_bot_api.reply_message(
                         ReplyMessageRequest(
                             replyToken=event.reply_token,
-                            messages=[TextMessage(text="亂回，重來")]
+                            messages=[TextMessage(text="亂回！重來")]
                         )
                     )
                     user_status[user_id]["weatherstep"] = 0
@@ -377,7 +397,7 @@ def handle_message(event):
                 line_bot_api.reply_message(
                         ReplyMessageRequest(
                             replyToken=event.reply_token,
-                            messages=[TextMessage(text="亂回，請重新選擇呼叫天氣")]
+                            messages=[TextMessage(text="亂回！重來")]
                         )
                     )
                 user_status[user_id]["weatherstep"] = 0
@@ -392,9 +412,24 @@ def handle_message(event):
                     )
                 )
                 user_status[user_id]["weatherstep"] = 0
-            
-        # 便宜機票總覽
-        elif text == "機票" and weatherstep == 0 and luckystep ==0:
+        
+        # 機票概述
+        elif text == "機票" and weatherstep ==0 and luckystep ==0:
+            explain_text = "喵～說明：\n\n輸入「機票清單」可以看到各地便宜機票列表（含目的地、時間、票價）\n方便快速滑閱想去的地方\n\n輸入「機票連結」可點選Trip.com購票連結\n但是一次只能顯示12筆資料，需輸入「機票第二頁」可以看到第13~24筆資料，依此類推"
+            send_quick_reply(line_bot_api, event, explain_text, ["機票清單", "機票連結"])
+
+        # 便宜機票清單
+        elif text == "機票清單" and weatherstep ==0 and luckystep ==0:
+            flight_list = creat_flight_list()[:5000]
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text=flight_list)]
+                )
+            )
+
+        # 便宜機票連結
+        elif text == "機票連結" and weatherstep == 0 and luckystep ==0:
             carousel_bubbles = create_fight_carousel_bubbles()
 
             carousel_dict = {
@@ -433,8 +468,7 @@ def handle_message(event):
                     )]
                 )
             )
-
-        
+       
         elif text == "機票第三頁" and weatherstep == 0 and luckystep == 0:
             carousel_bubbles = create_fight_carousel_bubbles()
             carousel_dict = {
@@ -694,12 +728,12 @@ def handle_message(event):
         # 今日運勢
         elif text == "今日運勢" and luckystep == 0 and weatherstep == 0:
             user_status[user_id]["luckystep"] = 1
-            send_quick_reply(line_bot_api, event, "請選擇顏色", ["紅", "橙", "黃", "綠", "藍", "紫", "黑", "白"])
+            send_quick_reply(line_bot_api, event, "喵～選顏色", ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"])
 
         elif luckystep == 1 and weatherstep == 0:
-            text_list = ["紅", "橙", "黃", "綠", "藍", "紫", "黑", "白"]
+            text_list = ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"]
             if text not in text_list:
-                send_quick_reply(line_bot_api, event, "請從選單選擇顏色", ["紅", "橙", "黃", "綠", "藍", "紫", "黑", "白"])
+                send_quick_reply(line_bot_api, event, "不想選可以打取消", ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"])
             else:
                 if text == "取消":
                     user_status[user_id]["luckystep"] = 0
@@ -708,7 +742,7 @@ def handle_message(event):
                     line_bot_api.reply_message(
                         ReplyMessageRequest(
                             replyToken=event.reply_token,
-                            messages=[TextMessage(text=f"您的運勢：{lucky_result}")]
+                            messages=[TextMessage(text=f"本喵掐指一算：{lucky_result}")]
                         )
                     )
                     user_status[user_id]["luckystep"] = 0
@@ -898,11 +932,18 @@ def handle_message(event):
                 )
             )
 
-        elif text == "Hi 可愛小貓咪":
+        elif text == "Hi 可愛小貓咪" or "小貓咪" or "嗨":
             line_bot_api.reply_message(
                 ReplyMessageRequest(
                     replyToken=event.reply_token,
                     messages=[TextMessage(text="喵")]
+                )
+            )
+        elif text == "耶":
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=[TextMessage(text="耶")]
                 )
             )
 

@@ -1,28 +1,28 @@
-import json
 import requests
-import datetime
 import os
 import pandas as pd
+from datetime import datetime
 
 token = os.getenv("TRAVELPAYOUTS_API_TOKEN")
-
-url_cheapest = "https://api.travelpayouts.com/v1/prices/direct"
-querystring = {
-    "origin": "TPE",
-    "destination": "-",
-    "currency":"TWD",
-    "token":token
-}
 
 df = pd.read_csv("airports.csv")
 airport_dict = dict(zip(df["IATA"], zip(df["Country (CN)"], df["Airport"])))
 
-response = requests.get(url_cheapest, params=querystring)
-data = response.json()
-airports = data["data"]
-airports_list = airports.keys()
 
-def cheapest_general():
+
+def cheapest_general(des="-"):
+    url_cheapest = "https://api.travelpayouts.com/v1/prices/direct"
+    querystring = {
+        "origin": "TPE",
+        "destination": des,
+        "currency":"TWD",
+        "token":token
+    }
+
+    response = requests.get(url_cheapest, params=querystring)
+    data = response.json()
+    airports = data["data"]
+
     cheapest_general = {}
     for airport, airport_info in airports.items():
         if not airport_info:
@@ -45,8 +45,9 @@ def cheapest_general():
                 cheapest_general[airport]["trip_link"] = f"https://tw.trip.com/flights/showfarefirst?dcity=tpe&acity={airport}&ddate={items["departure_at"][:10]}&rdate={items["return_at"][:10]}&triptype=rt&nonstoponly=on&locale=zh-TW&curr=TWD"
             except KeyError:
                 continue
-            
+
+    if cheapest_general == {}:
+        return "查無相關航班"
+
     return cheapest_general
 
-
-print(airports_list)
