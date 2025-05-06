@@ -363,12 +363,7 @@ def handle_message(event):
         # guide information
         if text.lower() in guide_list:
             guide_text="本喵學會找天氣、找機票、占卜\n其他還在學\n\n輸入「天氣」可以找36小時內天氣\n輸入「機票」可以找便宜機票\n輸入「今日運勢」本喵會占卜！"
-            line_bot_api.reply_message(
-                ReplyMessageRequest(
-                    replyToken=event.reply_token,
-                    messages=[TextMessage(text=guide_text)]
-                )
-            )
+            send_quick_reply(line_bot_api, event, guide_text, ["天氣","機票","今日運勢"])
 
         #天氣
         elif text == "天氣" and weatherstep == 0 and luckystep == 0 and flightstep == 0:
