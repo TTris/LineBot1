@@ -739,7 +739,7 @@ def handle_message(event):
             send_quick_reply(line_bot_api, event, "喵～選顏色", ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"])
 
         elif luckystep == 1 and weatherstep == 0:
-            text_list = ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"]
+            text_list = ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白","取消"]
             if text not in text_list:
                 send_quick_reply(line_bot_api, event, "不想選可以打取消", ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"])
             else:
