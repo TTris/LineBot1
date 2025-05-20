@@ -496,7 +496,30 @@ def handle_message(event):
                 )
             )
 
+        # 今日運勢
+        elif text == "今日運勢" and luckystep == 0 and weatherstep == 0:
+            user_status[user_id]["luckystep"] = 1
+            send_quick_reply(line_bot_api, event, "喵～選顏色", ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"])
 
+        elif luckystep == 1 and weatherstep == 0:
+            text_list = ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白","取消"]
+            if text not in text_list:
+                send_quick_reply(line_bot_api, event, "不想選可以打取消", ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"])
+            else:
+                if text == "取消":
+                    user_status[user_id]["luckystep"] = 0
+                else:
+                    lucky_result = color_hash(user_status[user_id], text)
+                    line_bot_api.reply_message(
+                        ReplyMessageRequest(
+                            replyToken=event.reply_token,
+                            messages=[TextMessage(text=f"本喵掐指一算：{lucky_result}")]
+                        )
+                    )
+                    user_status[user_id]["luckystep"] = 0
+
+
+        #below are practice functions
         # Quick Reply
         elif text == "Quick reply":
             quick_reply = QuickReply(
@@ -559,7 +582,6 @@ def handle_message(event):
                     )]
                 )
             )
-
 
         elif text == "flex":
             url = request.url_root + "/static/IMG_5975.jpg"
@@ -732,29 +754,6 @@ def handle_message(event):
                     messages=[FlexMessage(altText="詳細說明", contents=FlexContainer.from_json(line_flex_str))]
                 )
             )
-
-        # 今日運勢
-        elif text == "今日運勢" and luckystep == 0 and weatherstep == 0:
-            user_status[user_id]["luckystep"] = 1
-            send_quick_reply(line_bot_api, event, "喵～選顏色", ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"])
-
-        elif luckystep == 1 and weatherstep == 0:
-            text_list = ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白","取消"]
-            if text not in text_list:
-                send_quick_reply(line_bot_api, event, "不想選可以打取消", ["紅", "橘", "黃", "綠", "藍", "紫", "黑", "白"])
-            else:
-                if text == "取消":
-                    user_status[user_id]["luckystep"] = 0
-                else:
-                    lucky_result = color_hash(user_status[user_id], text)
-                    line_bot_api.reply_message(
-                        ReplyMessageRequest(
-                            replyToken=event.reply_token,
-                            messages=[TextMessage(text=f"本喵掐指一算：{lucky_result}")]
-                        )
-                    )
-                    user_status[user_id]["luckystep"] = 0
-
 
         # Confirm Template
         elif text == "Confirm":
@@ -940,6 +939,7 @@ def handle_message(event):
                 )
             )
 
+        # easter eggs
         elif text in meow_list:
             line_bot_api.reply_message(
                 ReplyMessageRequest(
@@ -955,6 +955,7 @@ def handle_message(event):
                 )
             )
 
+        # else
         else:
             line_bot_api.reply_message(
                 ReplyMessageRequest(
